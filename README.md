@@ -11,9 +11,14 @@ To get the Github API, you need to go to your user account and in developer tool
 
 At the beginning of the project I use the useState to get the data from Github API. Later in the project I will change this to useReducer
 
-`import { useState } from 'react'; `
-`const [users, setUsers] = useState([]); `
-`const [loading, setLoading] = useState(true);`
+```
+import { useState } from 'react';
+
+const [users, setUsers] = useState([])
+
+const [loading, setLoading] = useState(true)
+
+```
 
 ## Using useContext
 
@@ -149,3 +154,7 @@ dispatch({ type: 'FETCH_REPOS', payload: userRepoData });
 ```
 
 Adding filter I can filter the repos by amount of repositories I want to show in my page.
+
+```
+
+```
