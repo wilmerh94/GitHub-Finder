@@ -16,8 +16,8 @@ function App() {
     <AlertProvider>
      <Router>
       <NavBar title='Github Finder' />
-      <div className=' container flex flex-col justify-center h-screen '>
-       <main className='container mx-auto px-3 pb-96 '>
+      <div className=' flex flex-col justify-center h-screen '>
+       <main className='container mx-auto px-3  '>
         <Alert />
         <Routes>
          <Route path='/' element={<Home />} />
