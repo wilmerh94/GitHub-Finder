@@ -1,70 +1,151 @@
-# Getting Started with Create React App
+# Getting Started with React App + TailwindCSS + Daisy UI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project has been created with the following technologies:
+React, TailwindCSS, Daisy UI, React-DOM-Router
 
-## Available Scripts
+## Next Step getting the layout for NavBar and table to find Github API
 
-In the project directory, you can run:
+To get the Github API, you need to go to your user account and in developer tools, you can see the API key that you will create.
 
-### `yarn start`
+## Using useState to get the data from Github API
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+At the beginning of the project I use the useState to get the data from Github API. Later in the project I will change this to useReducer
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+`import { useState } from 'react'; `
+`const [users, setUsers] = useState([]); `
+`const [loading, setLoading] = useState(true);`
 
-### `yarn test`
+## Using useContext
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+I create a separate file for this Hook, and I import it in the main file.
 
-### `yarn build`
+```
+export const NAMEContext = createContext();
+export const NAMEProvider = ({ children }) => {
+return (
+<GithubContext.Provider value={{ VALUES THAT YOU ARE GOING TO PROVIDE TO THE CHILDREN }}>`
+{children}
+</GithubContext.Provider>
+);
+};
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Fetching the API from Github
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Create a file called .env and imported to my Context Hook
 
-### `yarn eject`
+```
+REACT_APP_GITHUB_URL="https://api.github.com"
+REACT_APP_GITHUB_TOKEN=" TOKEN THAT YOU WILL GET FROM YOUR ACCOUNT"
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Adding the Reducer and Context together
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+I create a Reducer where i can call the action I want to do when a function is call in Context
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Creating the GithubActions
 
-## Learn More
+Adding this file I can pass around my code what kind of actions I want to call and make my code cleaner and also easier to read GithubContext where It contain the state and the dispatch function
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Adding Axios to my project
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+yarn add axios
 
-### Code Splitting
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+I changed the code in GithubActions to use the Axios library.
 
-### Analyzing the Bundle Size
+```
+const response = await fetch(`${GITHUB_URL}/search/users?${params}`, {
+header: {
+Authorization: `token ${GITHUB_TOKEN}`,
+},
+);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+const { items } = await response.json();
+return items;
 
-### Making a Progressive Web App
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+to create
 
-### Advanced Configuration
+```
+const response = await fetch(`${GITHUB_URL}/search/users?${params}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+return response.data.items
 
-### Deployment
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+and
 
-### `yarn build` fails to minify
+```
+export const getUser = async (login) => {
+const response = await fetch(`${GITHUB_URL}/users/${login}`, {
+header: {
+Authorization: `token ${GITHUB_TOKEN}`,
+},
+});
+if (response.status === 404) {
+window.location = '/notfound';
+} else {
+const data = await response.json();
+return data;
+}
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+// Get search repos
+
+export const getUserRepos = async (login) => {
+const params = new URLSearchParams({
+sort: 'created',
+per_page: 5,
+});
+
+const response = await fetch(`${GITHUB_URL}/users/${login}/repos?${params}`, {
+header: {
+Authorization: `token ${GITHUB_TOKEN}`,
+},
+});
+
+const data = await response.json();
+
+return data;
+};
+
+TO create
+export const getUserAndRepos = async (loing) => {
+const [ user, repos ] = await Promise.all([
+github.get(`/users/${login}`),
+github.get(`/users/${login}/repos`)
+]);
+return { user, repos }
+
+}
+
+```
+
+## Changing User because Axios
+
+```
+const userData = await getUser(params.login);
+dispatch({ type: 'FETCH_USER', payload: userData });
+
+const userRepoData = await getUserRepos(params.login);
+dispatch({ type: 'FETCH_REPOS', payload: userRepoData });
+
+```
+
+## Adding filter in Reposlist
+
+```
+    {repos
+     .filter((repo, index) => index < 6)
+     .map((repo) => (
+      <RepoItem key={repo.id} repo={repo} required />
+     ))}
+```
+
+Adding filter I can filter the repos by amount of repositories I want to show in my page.
