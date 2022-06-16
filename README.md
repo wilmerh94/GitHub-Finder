@@ -154,7 +154,3 @@ dispatch({ type: 'FETCH_REPOS', payload: userRepoData });
 ```
 
 Adding filter I can filter the repos by amount of repositories I want to show in my page.
-
-```
-
-```
